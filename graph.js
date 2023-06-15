@@ -63,30 +63,55 @@ class Graph {
     // - if seen
     //   - X
 
-    let result = [start.value];
+    let result = [];
     let toVisit = [start];
     let seen = new Set();
 
-    while (toVisit.length > 0) {
-      // console.log("toVisit= ", toVisit);
-      let current = toVisit.pop();
+    function _depthFirstSearch() {
+      if (toVisit.length === 0) {
+        return result;
+      }
+
+      let current = toVisit.pop(); //progression
+
       if (!seen.has(current)) {
         seen.add(current);
         result.push(current.value);
         for (let adjacentNode of current.adjacent) {
-          toVisit.push(adjacentNode);
+          if (!seen.has(adjacentNode)) {
+            toVisit.push(adjacentNode);
+          }
         }
       }
+      return _depthFirstSearch();
     }
-    return result;
+    return _depthFirstSearch();
+
+    // let result = [start.value];
+    // let toVisit = [start];
+    // let seen = new Set();
+
+    // while (toVisit.length > 0) {
+    //   // console.log("toVisit= ", toVisit);
+    //   let current = toVisit.pop();
+    //   if (!seen.has(current)) {
+    //     seen.add(current);
+    //     result.push(current.value);
+    //     for (let adjacentNode of current.adjacent) {
+    //       toVisit.push(adjacentNode);
+    //     }
+    //   }
+    // }
+
+    // return result;
   }
 
   //results [S,P,U,Q,X,V,R,Y,W,T,]
 
   /** traverse graph with BDS and returns array of Node values */
-  breadthFirstSearch(start, results=[start], index=0) {
+  breadthFirstSearch(start, results = [start], index = 0) {
     if (this.nodes.size === results.length) {
-      return results.map(node => node.value);
+      return results.map((node) => node.value);
     }
 
     for (let adjacentNode of start.adjacent) {
@@ -94,20 +119,21 @@ class Graph {
         results.push(adjacentNode);
       }
     }
-    return this.breadthFirstSearch(results[index+1], results, index+1);
+    return this.breadthFirstSearch(results[index + 1], results, index + 1);
   }
 
   /** find the distance of the shortest path from the start vertex to the end vertex */
-  distanceOfShortestPath(start, end, visited=new Set()) {
-    console.log("start: ", start, "end: ", end, "visited: ", visited);
+  distanceOfShortestPath(start, end, visited = new Set()) {
+    // console.log("start: ", start, "end: ", end, "visited: ", visited);
     if (!this.nodes.has(start) || !this.nodes.has(end)) return;
     if (start === end) return 0;
 
     if (!visited.has(start)) {
       visited.add(start);
       let adjacents = Array.from(start.adjacent); // [I, T, H] -> [1,]
-      let paths = adjacents.map(node =>
-        this.distanceOfShortestPath(node, end, new Set([...visited.values()])));
+      let paths = adjacents.map((node) =>
+        this.distanceOfShortestPath(node, end, new Set([...visited.values()]))
+      );
       let shortestPath = 1 + Math.min(...paths);
       return shortestPath;
     }
@@ -116,3 +142,41 @@ class Graph {
 }
 
 module.exports = { Graph, Node };
+
+let graph = new Graph();
+let S = new Node("S");
+let P = new Node("P");
+let U = new Node("U");
+let X = new Node("X");
+let Q = new Node("Q");
+let Y = new Node("Y");
+let V = new Node("V");
+let R = new Node("R");
+let W = new Node("W");
+let T = new Node("T");
+
+graph.addVertices([S, P, U, X, Q, Y, V, R, W, T]);
+
+graph.addEdge(S, P);
+graph.addEdge(S, U);
+
+graph.addEdge(P, X);
+graph.addEdge(U, X);
+
+graph.addEdge(P, Q);
+graph.addEdge(U, V);
+
+graph.addEdge(X, Q);
+graph.addEdge(X, Y);
+graph.addEdge(X, V);
+
+graph.addEdge(Q, R);
+graph.addEdge(Y, R);
+
+graph.addEdge(Y, W);
+graph.addEdge(V, W);
+
+graph.addEdge(R, T);
+graph.addEdge(W, T);
+
+let result = graph.depthFirstSearch(T);
