@@ -68,7 +68,7 @@ class Graph {
     let seen = new Set();
 
     while (toVisit.length > 0) {
-      console.log("toVisit= ", toVisit);
+      // console.log("toVisit= ", toVisit);
       let current = toVisit.pop();
       if (!seen.has(current)) {
         seen.add(current);
@@ -81,11 +81,38 @@ class Graph {
     return result;
   }
 
+  //results [S,P,U,Q,X,V,R,Y,W,T,]
+
   /** traverse graph with BDS and returns array of Node values */
-  breadthFirstSearch(start) {}
+  breadthFirstSearch(start, results=[start], index=0) {
+    if (this.nodes.size === results.length) {
+      return results.map(node => node.value);
+    }
+
+    for (let adjacentNode of start.adjacent) {
+      if (!results.includes(adjacentNode)) {
+        results.push(adjacentNode);
+      }
+    }
+    return this.breadthFirstSearch(results[index+1], results, index+1);
+  }
 
   /** find the distance of the shortest path from the start vertex to the end vertex */
-  distanceOfShortestPath(start, end) {}
+  distanceOfShortestPath(start, end, visited=new Set()) {
+    console.log("start: ", start, "end: ", end, "visited: ", visited);
+    if (!this.nodes.has(start) || !this.nodes.has(end)) return;
+    if (start === end) return 0;
+
+    if (!visited.has(start)) {
+      visited.add(start);
+      let adjacents = Array.from(start.adjacent); // [I, T, H] -> [1,]
+      let paths = adjacents.map(node =>
+        this.distanceOfShortestPath(node, end, new Set([...visited.values()])));
+      let shortestPath = 1 + Math.min(...paths);
+      return shortestPath;
+    }
+    return Infinity;
+  }
 }
 
 module.exports = { Graph, Node };
